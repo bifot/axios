@@ -1,5 +1,10 @@
+/* eslint-disable no-console */
+/* eslint-disable no-unused-vars */
+/* eslint-disable func-names */
 // Karma configuration
 // Generated on Fri Aug 15 2014 23:11:13 GMT-0500 (CDT)
+
+'use strict';
 
 var webpack = require('webpack');
 
@@ -15,6 +20,7 @@ function createCustomLauncher(browser, version, platform) {
 module.exports = function(config) {
   var customLaunchers = {};
   var browsers = [];
+  var sauceLabs;
 
   if (process.env.SAUCE_USERNAME || process.env.SAUCE_ACCESS_KEY) {
     customLaunchers = {};
@@ -31,7 +37,7 @@ module.exports = function(config) {
       'SAUCE_ANDROID'
     ];
 
-    options.forEach(function (opt) {
+    options.forEach(function(opt) {
       if (process.env[opt]) {
         runAll = false;
       }
@@ -55,8 +61,21 @@ module.exports = function(config) {
     if (runAll || process.env.SAUCE_SAFARI) {
       // customLaunchers.SL_Safari7 = createCustomLauncher('safari', 7);
       // customLaunchers.SL_Safari8 = createCustomLauncher('safari', 8);
-
-      customLaunchers.SL_Safari9 = createCustomLauncher('safari', 9);
+      customLaunchers.SL_Safari9 = createCustomLauncher(
+        'safari',
+        9.0,
+        'OS X 10.11'
+      );
+      customLaunchers.SL_Safari10 = createCustomLauncher(
+        'safari',
+        '10.1',
+        'macOS 10.12'
+      );
+      customLaunchers.SL_Safari11 = createCustomLauncher(
+        'safari',
+        '11.1',
+        'macOS 10.13'
+      );
     }
 
     // Opera
@@ -68,9 +87,6 @@ module.exports = function(config) {
 
     // IE
     if (runAll || process.env.SAUCE_IE) {
-      // customLaunchers.SL_IE8 = createCustomLauncher('internet explorer', 8, 'Windows 7');
-      customLaunchers.SL_IE9 = createCustomLauncher('internet explorer', 9, 'Windows 2008');
-      customLaunchers.SL_IE10 = createCustomLauncher('internet explorer', 10, 'Windows 2012');
       customLaunchers.SL_IE11 = createCustomLauncher('internet explorer', 11, 'Windows 8.1');
     }
 
@@ -96,15 +112,27 @@ module.exports = function(config) {
     }
 
     browsers = Object.keys(customLaunchers);
+
+    sauceLabs = {
+      recordScreenshots: false,
+      connectOptions: {
+        // port: 5757,
+        logfile: 'sauce_connect.log'
+      },
+      public: 'public'
+    };
   } else if (process.env.TRAVIS_PULL_REQUEST && process.env.TRAVIS_PULL_REQUEST !== 'false') {
     console.log(
       'Cannot run on Sauce Labs as encrypted environment variables are not available to PRs. ' +
       'Running on Travis.'
     );
     browsers = ['Firefox'];
+  } else if (process.env.GITHUB_ACTIONS !== 'false') {
+    console.log('Running ci on Github Actions.');
+    browsers = ['FirefoxHeadless', 'ChromeHeadless'];
   } else {
     console.log('Running locally since SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are not set.');
-    browsers = ['Firefox', 'Chrome', 'Safari', 'Opera'];
+    browsers = ['Firefox', 'Chrome'];
   }
 
   config.set({
@@ -120,14 +148,12 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'test/specs/__helpers.js',
-      'test/specs/**/*.spec.js',
+      'test/specs/**/*.spec.js'
     ],
 
 
     // list of files to exclude
-    exclude: [
-
-    ],
+    exclude: [],
 
 
     // preprocess matching files before serving them to the browser
@@ -141,7 +167,9 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['dots', 'coverage', 'saucelabs'],
+    // Disable code coverage, as it's breaking CI:
+    // reporters: ['dots', 'coverage', 'saucelabs'],
+    reporters: ['progress'],
 
 
     // web server port
@@ -179,26 +207,13 @@ module.exports = function(config) {
 
     // Webpack config
     webpack: {
+      mode: 'development',
       cache: true,
       devtool: 'inline-source-map',
-      module: {
-        postLoaders: [
-          {
-            test: /\.js$/,
-            exclude: /(node_modules|test)/,
-            loader: 'istanbul-instrumenter'
-          }
-        ]
-      },
       externals: [
         {
           './adapters/http': 'var undefined'
         }
-      ],
-      plugins: [
-        new webpack.DefinePlugin({
-          'process.env.NODE_ENV': JSON.stringify('test')
-        })
       ]
     },
 
@@ -216,17 +231,7 @@ module.exports = function(config) {
       subdir: '.'
     },
 
-
-    // SauceLabs config
-    sauceLabs: {
-      recordScreenshots: false,
-      connectOptions: {
-        // port: 5757,
-        logfile: 'sauce_connect.log'
-      },
-      public: 'public'
-    },
-
+    sauceLabs: sauceLabs,
     customLaunchers: customLaunchers
   });
 };

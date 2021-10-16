@@ -7,40 +7,26 @@ describe('utils::isX', function () {
     expect(utils.isArray({length: 5})).toEqual(false);
   });
 
-  it('should validate ArrayBuffer', function () {
-    // ArrayBuffer doesn't exist in IE8/9
-    if (isOldIE && typeof ArrayBuffer === 'undefined') {
-      return;
-    }
+  it('should validate Buffer', function () {
+    expect(utils.isBuffer(Buffer.from('a'))).toEqual(true);
+    expect(utils.isBuffer(null)).toEqual(false);
+    expect(utils.isBuffer(undefined)).toEqual(false);
+  });
 
+  it('should validate ArrayBuffer', function () {
     expect(utils.isArrayBuffer(new ArrayBuffer(2))).toEqual(true);
     expect(utils.isArrayBuffer({})).toEqual(false);
   });
 
   it('should validate ArrayBufferView', function () {
-    // ArrayBuffer doesn't exist in IE8/9
-    if (isOldIE && typeof ArrayBuffer === 'undefined') {
-      return;
-    }
-
     expect(utils.isArrayBufferView(new DataView(new ArrayBuffer(2)))).toEqual(true);
   });
 
   it('should validate FormData', function () {
-    // FormData doesn't exist in IE8/9
-    if (isOldIE && typeof FormData === 'undefined') {
-      return;
-    }
-
     expect(utils.isFormData(new FormData())).toEqual(true);
   });
 
   it('should validate Blob', function () {
-    // Blob doesn't exist in IE8/9
-    if (isOldIE && typeof Blob === 'undefined') {
-      return;
-    }
-
     expect(utils.isBlob(new Blob())).toEqual(true);
   });
 
@@ -61,7 +47,15 @@ describe('utils::isX', function () {
 
   it('should validate Object', function () {
     expect(utils.isObject({})).toEqual(true);
+    expect(utils.isObject([])).toEqual(true);
     expect(utils.isObject(null)).toEqual(false);
+  });
+
+  it('should validate plain Object', function () {
+    expect(utils.isPlainObject({})).toEqual(true);
+    expect(utils.isPlainObject([])).toEqual(false);
+    expect(utils.isPlainObject(null)).toEqual(false);
+    expect(utils.isPlainObject(Object.create({}))).toEqual(false);
   });
 
   it('should validate Date', function () {
