@@ -54,8 +54,8 @@ server = http.createServer(function (req, res) {
         console.error('Error:', e.message);
         status = 400;
         result = {
-          error: e.message
-        };
+           error: e.message
+         };
       }
 
       res.writeHead(status, {
@@ -69,12 +69,4 @@ server = http.createServer(function (req, res) {
   }
 });
 
-const PORT = 3000;
-
-server.listen(PORT, console.log(`Listening on localhost:${PORT}...`));
-server.on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
-    console.log(`Address localhost:${PORT} in use please retry when the port is available!`);
-    server.close();
-  }
-});
+server.listen(3000);

@@ -11,6 +11,9 @@ axios = require('../../index');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
 jasmine.getEnv().defaultTimeoutInterval = 20000;
 
+// Is this an old version of IE that lacks standard objects like DataView, ArrayBuffer, FormData, etc.
+isOldIE = /MSIE (8|9)\.0/.test(navigator.userAgent);
+
 // Get Ajax request using an increasing timeout to retry
 getAjaxRequest = (function () {
 var attempts = 0;
@@ -76,38 +79,7 @@ setupBasicAuthTest = function setupBasicAuthTest() {
     }, 100);
   });
 
-  it('should accept HTTP Basic auth credentials without the password parameter', function (done) {
-    axios('/foo', {
-      auth: {
-        username: 'Aladdin'
-      }
-    });
-
-    setTimeout(function () {
-      var request = jasmine.Ajax.requests.mostRecent();
-
-      expect(request.requestHeaders['Authorization']).toEqual('Basic QWxhZGRpbjo=');
-      done();
-    }, 100);
-  });
-
-  it('should accept HTTP Basic auth credentials with non-Latin1 characters in password', function (done) {
-    axios('/foo', {
-      auth: {
-        username: 'Aladdin',
-        password: 'open ßç£☃sesame'
-      }
-    });
-
-    setTimeout(function () {
-      var request = jasmine.Ajax.requests.mostRecent();
-
-      expect(request.requestHeaders['Authorization']).toEqual('Basic QWxhZGRpbjpvcGVuIMOfw6fCo+KYg3Nlc2FtZQ==');
-      done();
-    }, 100);
-  });
-
-  it('should fail to encode HTTP Basic auth credentials with non-Latin1 characters in username', function (done) {
+  it('should fail to encode HTTP Basic auth credentials with non-Latin1 characters', function (done) {
     axios('/foo', {
       auth: {
         username: 'Aladßç£☃din',

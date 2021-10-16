@@ -1,3 +1,3 @@
-describe('basicAuth', function () {
+describe('basicAuth without btoa polyfill', function () {
   setupBasicAuthTest();
 });

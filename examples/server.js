@@ -1,4 +1,5 @@
 var fs = require('fs');
+var url = require('url');
 var path = require('path');
 var http = require('http');
 var argv = require('minimist')(process.argv.slice(2));
@@ -9,7 +10,7 @@ function listDirs(root) {
   var files = fs.readdirSync(root);
   var dirs = [];
 
-  for (var i = 0, l = files.length; i < l; i++) {
+  for (var i=0, l=files.length; i<l; i++) {
     var file = files[i];
     if (file[0] !== '.') {
       var stat = fs.statSync(path.join(root, file));
@@ -104,7 +105,7 @@ server = http.createServer(function (req, res) {
   if (/\/$/.test(url)) {
     url += 'index.html';
   }
-
+  
   // Format request /get -> /get/index.html
   var parts = url.split('/');
   if (dirs.indexOf(parts[parts.length - 1]) > -1) {
@@ -133,8 +134,4 @@ server = http.createServer(function (req, res) {
   }
 });
 
-const PORT = argv.p || 3000;
-
-server.listen(PORT);
-
-console.log("Examples running on " + PORT);
+server.listen(argv.p || 3000);
